@@ -1,56 +1,62 @@
-**LLM-Powered Prompt Router for Intent Classification**
+# LLM-Powered Prompt Router for Intent Classification
+
+## Overview
+
+This project implements an AI-based prompt routing system that detects a user’s intent and routes the request to a specialized AI persona.
+
+Instead of relying on a single monolithic prompt, the system follows a two-step architecture:
+
+1. Classify the user’s intent
+2. Delegate the request to an expert assistant
+
+The system supports multiple expert personas such as Code Expert, Data Analyst, Writing Coach, and Career Advisor. This approach improves response quality, ensures focused outputs, and enables scalable multi-purpose AI systems.
 
 ---
 
-**Overview**
+## System Architecture
 
-This project implements an AI prompt routing system that detects a user’s intent and routes the request to a specialized AI persona. Instead of using one large prompt for all tasks, the system first classifies the user message and then delegates it to an expert assistant such as a **Code Expert**, **Data Analyst**, **Writing Coach**, or **Career Advisor**.
-This architecture improves response quality, keeps prompts focused, and makes the system scalable for building multi-purpose AI applications.
-
----
-
-**System Architecture**
-
+```
 User Message
-↓
+      ↓
 Intent Classification (LLM Call 1)
-↓
-Intent + Confidence (JSON Output)
-↓
+      ↓
+Intent + Confidence (JSON)
+      ↓
 Prompt Router
-↓
-Select Expert Persona Prompt
-↓
+      ↓
+Select Expert Persona
+      ↓
 Response Generation (LLM Call 2)
-↓
-Final Response to User
-↓
-Log Routing Decision
+      ↓
+Final Response
+      ↓
+Logging (route_log.jsonl)
+```
 
 ---
 
-**System Workflow**
+## System Workflow
 
-1. The user sends a message to the system.
-2. The **classify_intent** function sends the message to a lightweight LLM classifier.
-3. The classifier returns a JSON object containing **intent** and **confidence**.
-4. The router selects the appropriate expert system prompt based on the detected intent.
-5. A second LLM call generates the final response using that expert persona.
-6. If the intent is **unclear**, the system asks the user for clarification instead of guessing.
-7. The system logs the routing decision and response in **route_log.jsonl**.
+1. The user sends a message.
+2. The `classify_intent` function sends it to a lightweight LLM.
+3. The LLM returns a structured JSON object containing intent and confidence.
+4. The router selects the appropriate expert system prompt.
+5. A second LLM call generates the final response using the selected persona.
+6. If the intent is unclear, the system asks a clarification question instead of making assumptions.
+7. Every request is logged in `route_log.jsonl` for observability.
 
 ---
 
-**Supported Intents**
+## Supported Intents
 
 **Code**
 Programming questions, debugging, algorithms, or software development tasks.
 
 **Data**
-Questions involving numbers, statistics, SQL queries, datasets, or data interpretation.
+Questions involving statistics, SQL queries, datasets, or data interpretation.
 
 **Writing**
-Requests for feedback on writing clarity, tone, grammar, or structure.
+Requests for feedback on clarity, tone, grammar, or structure.
 
 **Career**
 Questions related to job interviews, resumes, career planning, or professional growth.
@@ -60,58 +66,64 @@ Messages that are ambiguous or do not clearly match any supported category.
 
 ---
 
-**Project Structure**
+## Project Structure
 
-main.py
-Handles user input, runs classification, routes the request, and prints the response.
-
-classifier.py
-Implements the intent classification logic using an LLM and returns structured JSON.
-
-router.py
-Selects the correct expert prompt and generates the final response.
-
-prompts.py
-Stores all expert system prompts in a configurable dictionary.
-
-logger.py
-Logs routing decisions and responses into **route_log.jsonl**.
-
-test_messages.py
-Contains sample messages used for testing routing behavior.
-
-requirements.txt
-Lists project dependencies.
+```
+.
+├── main.py
+├── classifier.py
+├── router.py
+├── prompts.py
+├── logger.py
+├── test_messages.py
+├── route_log.jsonl
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
+```
 
 ---
 
-**Example Classifier Output**
+## Example Outputs
 
+### Classifier Output
+
+```json
 {
-"intent": "code",
-"confidence": 0.92
+  "intent": "code",
+  "confidence": 0.92
 }
+```
+
+### Log Entry
+
+```json
+{
+  "intent": "writing",
+  "confidence": 0.88,
+  "user_message": "my writing is too verbose",
+  "final_response": "..."
+}
+```
+
+Each line in `route_log.jsonl` represents a single processed request.
 
 ---
 
-**Example Log Entry**
+## Technologies Used
 
-{"intent":"writing","confidence":0.88,"user_message":"my writing is too verbose","final_response":"..."}
-
-Each line in **route_log.jsonl** represents one request processed by the system.
-
----
-
-**Technologies Used**
-
-Python
-OpenAI API
-Prompt Engineering
-JSON Parsing
-Intent-Based Routing Architecture
+* Python
+* OpenAI API
+* Prompt Engineering
+* JSON Parsing
+* Intent-Based Routing Architecture
 
 ---
 
-**Conclusion**
+## Conclusion
 
-This project demonstrates a practical AI architecture where user requests are first classified and then routed to specialized prompts. By separating **intent detection** and **response generation**, the system produces more accurate and context-aware responses while maintaining a modular and scalable design.
+This project demonstrates a scalable AI design pattern where user intent is first classified and then routed to specialized prompts.
+
+By separating intent detection from response generation, the system produces more accurate, context-aware, and high-quality outputs compared to traditional single-prompt approaches.
+
